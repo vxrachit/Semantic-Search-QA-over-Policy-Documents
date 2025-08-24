@@ -19,9 +19,19 @@ def _prefix(user_id: str) -> str:
 def upload_file(user_id: str, local_path: Path, remote_name: str):
     sb = _client()
     dest = f"{_prefix(user_id)}/{remote_name}"
+
+    # Try deleting old file first (ignore if it doesn't exist)
+    try:
+        sb.storage.from_(SUPABASE_BUCKET).remove([dest])
+    except Exception:
+        pass
+
+    # Now upload
     with open(local_path, "rb") as f:
-        # Removed "upsert=True"
         sb.storage.from_(SUPABASE_BUCKET).upload(dest, f)
+
+
+
 
 
 def download_file(user_id: str, local_path: Path, remote_name: str) -> bool:

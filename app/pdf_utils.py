@@ -1,4 +1,4 @@
-import fitz  # PyMuPDF
+import fitz 
 from typing import List, Tuple
 
 def extract_pages(pdf_path: str) -> List[Tuple[int, str]]:
