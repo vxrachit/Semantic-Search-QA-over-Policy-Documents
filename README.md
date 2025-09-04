@@ -1,17 +1,27 @@
-# 📘 Semantic Search & QA over Policy Documents
+# 📘 Semantic Search & QA over Policy Documents (Full-Stack)
 
-A **FastAPI backend** that allows you to upload PDF policy documents, build embeddings with FAISS + SentenceTransformers, and query them with **Google Gemini** for precise, citation-backed answers.
+A **full-stack application** consisting of:  
+- **FastAPI backend** → Handles PDF ingestion, embeddings (FAISS + SentenceTransformers), and question answering using **Google Gemini**.  
+- **React + Vite frontend** → Provides a user-friendly dashboard for uploading documents, querying, and viewing results.  
 
 ---
 
 ## 🚀 Features
 
-* Upload PDF documents (`/ingest`) tied to a specific **user\_id**
+### Backend (FastAPI)
+* Upload PDF documents (`/ingest`) tied to a specific **user_id**
 * Store PDFs and FAISS indexes in **Supabase Storage**
 * Generate embeddings with **SentenceTransformers**
 * Search context snippets via **FAISS**
 * Ask questions with `/query` → answers powered by **Google Gemini API**
 * Per-user isolation (each user gets their own vector store)
+
+### Frontend (React + Vite)
+* Modern responsive UI
+* PDF upload interface
+* Query form with real-time results
+* Results display with **citations & preview snippets**
+* Mobile-friendly fallback view
 
 ---
 
@@ -21,7 +31,7 @@ A **FastAPI backend** that allows you to upload PDF policy documents, build embe
 .
 ├── .gitignore
 ├── LICENSE
-├── app
+├── app                  # Backend (FastAPI)
 │   ├── chunking.py
 │   ├── config.py
 │   ├── main.py
@@ -31,19 +41,30 @@ A **FastAPI backend** that allows you to upload PDF policy documents, build embe
 │   │   └── favicon.ico
 │   ├── storage.py
 │   └── vectorstore.py
+├── frontend             # Frontend (React + Vite)
+│   ├── index.html
+│   ├── package.json
+│   ├── src
+│   │   ├── main.tsx
+│   │   └── components/...
+│   └── vite.config.ts
 ├── render.yaml
 └── requirements.txt
-
 ```
 
 ---
 
 ## ⚙️ Requirements
 
+### Backend
 * Python **3.9+**
 * Dependencies in `requirements.txt`
 * A **Supabase project** with a storage bucket (default: `policyqa`)
 * A **Google API key** for Gemini
+
+### Frontend
+* Node.js **18+**
+* npm or yarn
 
 ---
 
@@ -57,7 +78,11 @@ git clone https://github.com/vxrachit/Semantic-Search-QA-over-Policy-Documents.g
 cd Semantic-Search-QA-over-Policy-Documents
 ```
 
-### 2. Create & activate virtual environment
+---
+
+### 2. Backend Setup
+
+Create & activate virtual environment:
 
 ```bash
 python -m venv .venv
@@ -65,13 +90,13 @@ source .venv/bin/activate   # Mac/Linux
 .venv\Scripts\activate      # Windows
 ```
 
-### 3. Install dependencies
+Install dependencies:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 4. Configure environment
+Configure environment:
 
 Create a `.env` file:
 
@@ -85,25 +110,51 @@ SUPABASE_SERVICE_ROLE_KEY=your_supabase_key
 SUPABASE_BUCKET=policyqa
 ```
 
----
-
-## ▶️ Run the API
-
-Start FastAPI with Uvicorn:
+Run backend:
 
 ```bash
 uvicorn app.main:app --reload
 ```
 
-The API will be available at:
-👉 [http://127.0.0.1:8000](http://127.0.0.1:8000)
-
-Documentation:
-👉 [Click Here](https://docs.vxrachit.is-a.dev/semantic-search-qa-over-policy-documents/)
+👉 API will be available at: [http://127.0.0.1:8000](http://127.0.0.1:8000)
 
 ---
 
-## 📡 API Endpoints
+### 3. Frontend Setup
+
+Navigate to frontend:
+
+```bash
+cd frontend
+```
+
+Install dependencies:
+
+```bash
+npm install
+# or
+yarn install
+```
+
+Configure environment:
+
+Create a `.env` file or rename .env.example to .env:
+
+```
+VITE_API_URL=your_backend_url
+```
+
+Run frontend dev server:
+
+```bash
+npm run dev
+```
+
+👉 Frontend will be available at: [http://localhost:5173](http://localhost:5173)
+
+---
+
+## 📡 API Endpoints (Backend)
 
 ### 1. `/ingest` → Upload & embed PDFs
 
@@ -111,7 +162,7 @@ POST /ingest
 
 Request (multipart/form-data):
 
-* user\_id: string (required) → isolates storage by user
+* user_id: string (required) → isolates storage by user
 * files: one or more PDF files
 
 ---
@@ -130,45 +181,7 @@ Request (JSON):
 }
 ```
 
-Response:
-
-```json
-{
-  "answer": "National Education Policy 2020 is a policy from the Ministry of Human Resource Development, Government of India [Doc: NEP_Final_English_0.pdf, p.1]. A major development since the last Policy of 1986/92 has been the Right of Children to Free and Compulsory Education Act 2009 [Doc: NEP_Final_English_0.pdf, p.5].",
-  "sources": [
-    {
-      "doc_name": "NEP_Final_English_0.pdf",
-      "page": 1,
-      "score": 0.6943,
-      "preview": "1 National Education Policy 2020 Ministry of Human Resource Development Government of India"
-    },
-    {
-      "doc_name": "NEP_Final_English_0.pdf",
-      "page": 5,
-      "score": 0.6855,
-      "preview": "this Policy. A major development since the last Policy of 1986/92 has been the Right of Children to Free and Compulsory Education Act 2009 which laid down legal…"
-    },
-    {
-      "doc_name": "NEP_Final_English_0.pdf",
-      "page": 63,
-      "score": 0.6647,
-      "preview": "National Education Policy 2020 62 systematic manner. Therefore, the implementation of this Policy will be led by various bodies including MHRD, CABE, Union and …"
-    },
-    {
-      "doc_name": "NEP_Final_English_0.pdf",
-      "page": 3,
-      "score": 0.6631,
-      "preview": "National Education Policy 2020 2 19 Effective Governance and Leadership for Higher Education Institutions 49 PART III. OTHER KEY AREAS OF FOCUS 20 Professional …"
-    },
-    {
-      "doc_name": "NEP_Final_English_0.pdf",
-      "page": 32,
-      "score": 0.6565,
-      "preview": "National Education Policy 2020 31 8.4. The public education system is the foundation of a vibrant democratic society, and the way it is run must be transformed …"
-    }
-  ]
-}
-```
+Response includes answer + citations.
 
 ---
 
